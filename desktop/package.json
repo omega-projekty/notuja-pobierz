@@ -1,7 +1,7 @@
 {
   "name": "notuja-desktop",
   "productName": "Notuja",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Notuja - nagrywanie spotkan (dzwiek komputera + mikrofon) i notatki AI",
   "author": "Notuja",
   "private": true,

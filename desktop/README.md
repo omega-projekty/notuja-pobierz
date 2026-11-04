@@ -4,7 +4,9 @@ Cienka powłoka Electron wokół aplikacji webowej Notuja. Dodaje to, czego prze
 
 - nagrywanie **dźwięku komputera + mikrofonu bez okna wyboru ekranu** (proces główny sam odpowiada na `getDisplayMedia`: ekran główny + loopback dźwięku systemu),
 - ikonę w zasobniku, nagrywanie przy schowanym oknie, skrót globalny,
-- pytanie „Nagrać?”, gdy zaczyna się spotkanie.
+- pytanie „Nagrać?”, gdy zaczyna się spotkanie,
+- powiadomienia systemowe z aplikacji (te same co dzwonek: „materiał gotowy” itd.) i przypomnienie 10 minut przed zajęciami z planu (od 0.2.0),
+- autostart schowany w zasobniku (włączany raz przy pierwszym uruchomieniu, potem decyduje użytkownik) i informację o nowej wersji powłoki.
 
 Katalog jest niezależny od aplikacji webowej: własny `package.json`, czysty CommonJS (`.cjs`). Wszystkie polecenia uruchamiaj w `desktop/`, nigdy w katalogu głównym repo.
 
@@ -52,6 +54,8 @@ Certyfikaty w chmurze (Azure Trusted Signing) konfiguruje się przez `win.azureS
 - Polecenia (`{ type: 'record', source: 'computer' | 'mic' }`, `{ type: 'stop' }`) przychodzą jako zdarzenie DOM `notuja:command` na `window` (w `event.detail`), wysyłane z aktywacją użytkownika. `onCommand` słucha tego samego zdarzenia — strona ma używać **jednego** z tych sposobów, inaczej dostanie polecenie dwa razy.
 - Strona woła `ready()` po zarejestrowaniu nasłuchu (po każdym pełnym przeładowaniu). Bez `ready()` w 2 s powłoka otwiera `/app/nagraj?teraz=true&zrodlo=komputer`.
 - `setState({ recording, paused?, elapsedMs?, title? })` steruje ikoną i podpowiedzią w zasobniku. Zegar w podpowiedzi tyka sam; `elapsedMs` tylko go koryguje.
+- `notify({ title, body?, path?, kind? })` (od 0.2.0) pokazuje powiadomienie systemowe; kliknięcie wysyła stronie polecenie `{ type: 'open', path }` (adres pod `/app`). Zwykłe powiadomienia pomijamy, gdy okno jest widoczne i aktywne (wtedy wystarcza dzwonek). `kind: 'class'` to przypomnienie o zajęciach: pokazuje się zawsze, chyba że trwa nagrywanie albo użytkownik wyłączył je w menu ikony.
+- Nowa wersja powłoki: dwa razy na dobę zapytanie o najnowsze wydanie w `omega-projekty/notuja-pobierz` (GitHub API, bez danych użytkownika). Nowsza wersja = pozycja „Pobierz nową wersję” w menu ikony i jedno powiadomienie.
 
 ## Wykrywanie spotkań (Windows)
 
@@ -67,4 +71,4 @@ Windows/Linux: **Ctrl+Alt+R**, macOS: **Cmd+Option+N**. W Windows celowo nie Ctr
 - Nagrywanie zaczyna wyłącznie użytkownik (menu, skrót, kliknięcie powiadomienia). Wykrycie spotkania kończy się pytaniem, nigdy nagraniem.
 - Nagrywanie jest zawsze widoczne: czerwona kropka na ikonie w zasobniku, czas w podpowiedzi i powiadomienie „Notuja nagrywa” przy starcie. Tego powiadomienia nie da się wyłączyć w aplikacji.
 - Uprawnienia do mikrofonu i przechwytywania ekranu dostaje tylko adres aplikacji (`NOTUJA_URL`); inne linki otwierają się w domyślnej przeglądarce.
-- Powłoka nie wysyła nigdzie żadnych danych; z rejestru czyta tylko nazwy programów używających mikrofonu.
+- Powłoka nie wysyła nigdzie żadnych danych (jedyne własne zapytanie to sprawdzenie numeru najnowszej wersji na GitHubie); z rejestru czyta tylko nazwy programów używających mikrofonu.

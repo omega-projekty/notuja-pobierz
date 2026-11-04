@@ -25,7 +25,9 @@ contextBridge.exposeInMainWorld('notujaDesktop', {
     const handler = (event) => {
       const d = event && event.detail;
       if (!d || typeof d.type !== 'string') return;
-      cb(d.type === 'record' ? { type: 'record', source: d.source === 'mic' ? 'mic' : 'computer' } : { type: d.type });
+      if (d.type === 'record') cb({ type: 'record', source: d.source === 'mic' ? 'mic' : 'computer' });
+      else if (d.type === 'open') cb({ type: 'open', path: typeof d.path === 'string' ? d.path : '/app' });
+      else cb({ type: d.type });
     };
     window.addEventListener('notuja:command', handler);
     return () => window.removeEventListener('notuja:command', handler);
@@ -35,5 +37,16 @@ contextBridge.exposeInMainWorld('notujaDesktop', {
   },
   ready() {
     ipcRenderer.send('notuja:ready');
+  },
+  /** Powiadomienie systemowe. `path` (np. /app/wyklady/…) otwiera się po kliknięciu; kind 'class' = przypomnienie o zajęciach. */
+  notify(n) {
+    const s = n && typeof n === 'object' ? n : {};
+    if (typeof s.title !== 'string' || !s.title) return;
+    ipcRenderer.send('notuja:notify', {
+      title: s.title.slice(0, 120),
+      body: typeof s.body === 'string' ? s.body.slice(0, 300) : '',
+      path: typeof s.path === 'string' && s.path.startsWith('/app') ? s.path.slice(0, 500) : '/app',
+      kind: s.kind === 'class' ? 'class' : 'app',
+    });
   },
 });

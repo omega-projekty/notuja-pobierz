@@ -5,6 +5,9 @@ const path = require('node:path');
 
 const DEFAULTS = {
   askOnMeeting: true,
+  classReminders: true, // przypomnienie kilka minut przed zajęciami z planu
+  autostartSet: false, // autostart włączony raz, przy pierwszym uruchomieniu (potem decyduje użytkownik)
+  notifiedVersion: null, // o tej nowej wersji już powiadomiliśmy
   closeHintShown: false,
   bounds: null,
   shortcut: null, // null = domyślny skrót dla platformy

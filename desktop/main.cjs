@@ -49,6 +49,7 @@ let recBase = 0; // Date.now() - elapsedMs
 let recFrozenMs = 0;
 let tooltipTimer = null;
 let sleepBlockId = null;
+let update = null; // { version, url } — nowsze wydanie powłoki do pobrania
 const liveNotifications = new Set();
 
 // macOS: zgody systemowe obsługuje osobny moduł (może nie istnieć).
@@ -358,6 +359,19 @@ async function sendCommand(cmd) {
   }, 200);
 }
 
+// Kliknięcie powiadomienia: okno na wierzch i przejście do adresu w aplikacji (bez przeładowania, jeśli strona gotowa).
+// Polecenie idzie z gestem użytkownika, więc /app/nagraj?teraz=true może od razu sięgnąć po mikrofon.
+function openPath(p) {
+  showWindow();
+  if (!win) return;
+  const target = typeof p === 'string' && p.startsWith('/app') ? p : '/app';
+  if (pageReady) return dispatchCommand({ type: 'open', path: target });
+  activateAfterLoad = true;
+  win.loadURL(`${APP_URL}${target}`).catch(() => {
+    activateAfterLoad = false;
+  });
+}
+
 function isTrustedSender(event) {
   if (!win || event.sender !== win.webContents) return false;
   const frame = event.senderFrame;
@@ -378,6 +392,14 @@ function setupIpc() {
   ipcMain.on('notuja:state', (event, state) => {
     if (!isTrustedSender(event)) return;
     applyState(state);
+  });
+  // Powiadomienia z aplikacji („materiał gotowy”, przypomnienie o zajęciach). Gdy ktoś patrzy na okno,
+  // wystarczy dzwonek w aplikacji — systemowe pokazujemy tylko przy schowanym albo nieaktywnym oknie.
+  ipcMain.on('notuja:notify', (event, n) => {
+    if (!isTrustedSender(event) || !n || typeof n.title !== 'string') return;
+    if (n.kind === 'class' && (settings.get('classReminders') === false || recState.recording)) return;
+    if (n.kind !== 'class' && win && win.isVisible() && win.isFocused()) return;
+    notify({ title: n.title, body: typeof n.body === 'string' ? n.body : '', onClick: () => openPath(n.path) });
   });
 }
 
@@ -485,9 +507,19 @@ function buildTrayMenu() {
         refreshTray();
       },
     },
+    {
+      label: 'Przypominaj o zajęciach z planu',
+      type: 'checkbox',
+      checked: settings.get('classReminders') !== false,
+      click: (item) => {
+        settings.set('classReminders', item.checked);
+        refreshTray();
+      },
+    },
     { type: 'separator' },
-    { label: 'Zakończ', click: quitApp },
   );
+  if (update) template.push({ label: `Pobierz nową wersję (${update.version})`, click: () => openExternal(update.url) }, { type: 'separator' });
+  template.push({ label: 'Zakończ', click: quitApp });
   return Menu.buildFromTemplate(template);
 }
 
@@ -545,6 +577,42 @@ function setupDetector() {
   } catch (err) {
     detector = null; // brak detektora = funkcja po cichu wyłączona
     if (err && err.code !== 'MODULE_NOT_FOUND') console.error('[notuja] detektor spotkań:', err.message);
+  }
+}
+
+// ---------------------------------------------------------------- nowa wersja powłoki
+
+// Treść aplikacji jest zawsze aktualna (okno ładuje notuja.pl); nowy instalator potrzebny jest tylko przy zmianach
+// samej powłoki. Dwa razy na dobę pytamy GitHub o najnowsze wydanie — bez żadnych danych o użytkowniku.
+const RELEASES = 'https://github.com/omega-projekty/notuja-pobierz/releases/latest/download/';
+
+function isNewer(a, b) {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) if ((pa[i] || 0) !== (pb[i] || 0)) return (pa[i] || 0) > (pb[i] || 0);
+  return false;
+}
+
+async function checkUpdate() {
+  try {
+    const res = await fetch('https://api.github.com/repos/omega-projekty/notuja-pobierz/releases/latest', {
+      headers: { accept: 'application/vnd.github+json', 'user-agent': 'Notuja-Desktop' },
+    });
+    if (!res.ok) return;
+    const version = String((await res.json()).tag_name || '').replace(/^v/, '');
+    if (!/^\d+\.\d+\.\d+$/.test(version) || !isNewer(version, app.getVersion())) return;
+    const file = IS_MAC ? (process.arch === 'arm64' ? 'Notuja-mac-arm64.dmg' : 'Notuja-mac-intel.dmg') : 'Notuja-Setup.exe';
+    update = { version, url: RELEASES + file };
+    refreshTray();
+    if (settings.get('notifiedVersion') === version) return;
+    settings.set('notifiedVersion', version);
+    notify({
+      title: 'Nowa wersja Notui',
+      body: `Wersja ${version} jest gotowa. Kliknij, aby pobrać instalator — Twoje dane zostają na koncie.`,
+      onClick: () => openExternal(update.url),
+    });
+  } catch {
+    // brak sieci — sprawdzimy przy następnej okazji
   }
 }
 
@@ -653,7 +721,21 @@ function main() {
     setupIpc();
     setupDetector();
     createTray();
-    createWindow({ show: !START_HIDDEN });
+    // macOS nie przekazuje --hidden przy logowaniu — rozpoznajemy start z autostartu.
+    const atLogin = IS_MAC && app.getLoginItemSettings().wasOpenedAtLogin;
+    createWindow({ show: !START_HIDDEN && !atLogin });
+
+    if (app.isPackaged) {
+      // Działanie w tle od pierwszej instalacji: autostart (schowany w zasobniku) włączamy raz,
+      // potem decyduje użytkownik („Uruchamiaj przy starcie systemu” w menu ikony).
+      if (!settings.get('autostartSet')) {
+        settings.set('autostartSet', true);
+        app.setLoginItemSettings({ openAtLogin: true, ...loginItemOptions() });
+        refreshTray();
+      }
+      setTimeout(checkUpdate, 30_000);
+      setInterval(checkUpdate, 12 * 60 * 60 * 1000);
+    }
 
     const shortcut = settings.get('shortcut') || DEFAULT_SHORTCUT;
     let registered = false;
