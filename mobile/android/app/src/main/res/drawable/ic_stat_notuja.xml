@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mała ikona powiadomienia: jednokolorowa litera N. -->
+<!-- Mała ikona powiadomienia: jednokolorowy znak „Fala” (N z 5 pasków, 18 dp wysokości). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,5 +7,17 @@
     android:viewportHeight="24">
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M6.5,18.5 L6.5,5.5 L9.5,5.5 L14.7,13.6 L14.7,5.5 L17.5,5.5 L17.5,18.5 L14.5,18.5 L9.3,10.4 L9.3,18.5 Z" />
+        android:pathData="M2.98,4.28 A1.28,1.28 0 0 1 5.53,4.28 L5.53,19.72 A1.28,1.28 0 0 1 2.98,19.72 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6.96,4.21 A1.21,1.21 0 0 1 9.37,4.21 L9.37,10.79 A1.21,1.21 0 0 1 6.96,10.79 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10.79,7.71 A1.21,1.21 0 0 1 13.21,7.71 L13.21,16.29 A1.21,1.21 0 0 1 10.79,16.29 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M14.63,13.21 A1.21,1.21 0 0 1 17.04,13.21 L17.04,19.79 A1.21,1.21 0 0 1 14.63,19.79 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M18.47,4.28 A1.28,1.28 0 0 1 21.02,4.28 L21.02,19.72 A1.28,1.28 0 0 1 18.47,19.72 Z" />
 </vector>

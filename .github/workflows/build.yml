@@ -209,4 +209,4 @@ jobs:
             esac
           done
           ls -la wydanie
-          gh release create "$TAG" wydanie/* --repo "$REPO" --title "Notuja ${TAG#v}" --notes "Aplikacje ładują notuja.pl. Windows: instalator bez certyfikatu — przy ostrzeżeniu wybierz „Więcej informacji” → „Uruchom mimo to”. Mac: pierwsze uruchomienie przez prawy przycisk → Otwórz. Android: przed instalacją odinstaluj poprzednią wersję, jeśli to wariant debug." --latest
+          gh release create "$TAG" wydanie/* --repo "$REPO" --title "Notuja ${TAG#v}" --notes "Aplikacje ładują notuja.pl. Windows: instalator bez certyfikatu — przy ostrzeżeniu wybierz „Więcej informacji” → „Uruchom mimo to”. Mac: przy pierwszym uruchomieniu macOS pokaże blokadę — kliknij Gotowe, potem Ustawienia systemowe → Prywatność i ochrona → „Otwórz mimo to”. Android: przed instalacją odinstaluj poprzednią wersję, jeśli to wariant debug." --latest

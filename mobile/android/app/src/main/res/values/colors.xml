@@ -2,7 +2,7 @@
 <resources>
     <color name="notuja_brand">#2F52D6</color>
     <color name="notuja_surface">#F5F4F1</color>
-    <color name="ic_launcher_background">#2F52D6</color>
+    <color name="ic_launcher_background">#0E0E11</color>
     <color name="colorPrimary">#2F52D6</color>
     <color name="colorPrimaryDark">#2644B8</color>
     <color name="colorAccent">#2F52D6</color>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Biała litera N w strefie bezpiecznej ikony adaptacyjnej (środkowe 66 z 108 dp). -->
+<!-- Znak Notui „Fala” (biały) w strefie bezpiecznej ikony adaptacyjnej: 40 dp wysokości, środek w 54,54.
+     Nóżki i trzy paski środka na przekątnej N; środkowy najdłuższy. Ta sama warstwa służy jako ikona jednokolorowa. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
@@ -7,5 +8,17 @@
     android:viewportHeight="108">
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M38,72 L38,36 L46.5,36 L62,59.5 L62,36 L70,36 L70,72 L61.5,72 L46,48.5 L46,72 Z" />
+        android:pathData="M33.95,36.84 A2.84,2.84 0 0 1 39.63,36.84 L39.63,71.16 A2.84,2.84 0 0 1 33.95,71.16 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M42.79,36.69 A2.69,2.69 0 0 1 48.16,36.69 L48.16,51.31 A2.69,2.69 0 0 1 42.79,51.31 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M51.32,44.48 A2.69,2.69 0 0 1 56.69,44.48 L56.69,63.52 A2.69,2.69 0 0 1 51.32,63.52 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M59.84,56.69 A2.69,2.69 0 0 1 65.21,56.69 L65.21,71.31 A2.69,2.69 0 0 1 59.84,71.31 Z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M68.37,36.84 A2.84,2.84 0 0 1 74.05,36.84 L74.05,71.16 A2.84,2.84 0 0 1 68.37,71.16 Z" />
 </vector>
